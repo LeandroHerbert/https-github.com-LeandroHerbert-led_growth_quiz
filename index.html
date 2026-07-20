@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Led Growth Diagnosis Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="./assets/index-COuNAZyV.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Q6RaMZhF.css">
+    <style>
+      /* Faz as colunas do CRM (Dashboard.tsx:440) quebrarem linha em vez de exigir
+         rolagem horizontal — arrastar-e-soltar não funciona bem com colunas fora da tela. */
+      [data-loc="client/src/pages/Dashboard.tsx:440"] {
+        overflow-x: visible !important;
+        flex-wrap: wrap !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script>
+      // O drag-and-drop do CRM (Dashboard.tsx) não está soltando os cards nas colunas
+      // corretamente. Este script adiciona um seletor de status ao lado de cada lead,
+      // que chama a mesma API (quizLeads.atualizarStatus), sem depender do arrastar-e-soltar.
+      (function () {
+        var STATUSES = [
+          ["novo", "Novo"],
+          ["em_contato", "Em contato"],
+          ["sessao_marcada", "Sessão marcada"],
+          ["sessao_realizada", "Sessão realizada"],
+          ["comprou", "Comprou"],
+          ["nao_comprou", "Não comprou"],
+        ];
+        var leadsCache = [];
+        var overlay = null;
+        var updating = false;
+
+        function ensureOverlay() {
+          if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.id = "status-mover-overlay";
+            overlay.style.cssText = "position:absolute;top:0;left:0;width:0;height:0;z-index:99999;";
+            document.body.appendChild(overlay);
+          }
+          return overlay;
+        }
+
+        function fetchLeads() {
+          return fetch("/api/trpc/quizLeads.listar")
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+              leadsCache = (data && data.result && data.result.data && data.result.data.json) || [];
+            })
+            .catch(function () {});
+        }
+
+        function updateStatus(id, crmStatus) {
+          if (updating) return;
+          updating = true;
+          fetch("/api/trpc/quizLeads.atualizarStatus", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ json: { id: id, crmStatus: crmStatus } }),
+          })
+            .then(function () { window.location.reload(); })
+            .catch(function () { updating = false; });
+        }
+
+        function sync() {
+          var ov = ensureOverlay();
+          // Só existe quando o card do lead está expandido (clicado)
+          var expandedBlocks = document.querySelectorAll('[data-loc="client/src/pages/Dashboard.tsx:147"]');
+          var seen = {};
+          expandedBlocks.forEach(function (block) {
+            var contactEl = block.querySelector('[data-loc="client/src/pages/Dashboard.tsx:159"]');
+            var text = contactEl ? (contactEl.textContent || "") : "";
+            var lead = null;
+            for (var i = 0; i < leadsCache.length; i++) {
+              var l = leadsCache[i];
+              if (l.email && text.indexOf(l.email) !== -1) { lead = l; break; }
+            }
+            if (!lead) return;
+            var key = "mover-" + lead.id;
+            seen[key] = true;
+            var box = document.getElementById(key);
+            var rect = block.getBoundingClientRect();
+            if (!box) {
+              box = document.createElement("div");
+              box.id = key;
+              box.style.cssText =
+                "position:absolute;pointer-events:auto;box-sizing:border-box;" +
+                "background:rgba(0,0,0,0.3);border-top:1px solid rgba(57,255,20,0.15);" +
+                "border-radius:0 0 10px 10px;padding:12px 14px;";
+
+              var label = document.createElement("label");
+              label.textContent = "MOVER LEAD PARA";
+              label.style.cssText =
+                "display:block;font-size:10px;font-weight:700;color:#8a9a8e;" +
+                "letter-spacing:0.08em;margin-bottom:4px;";
+              box.appendChild(label);
+
+              var select = document.createElement("select");
+              select.style.cssText =
+                "width:100%;box-sizing:border-box;pointer-events:auto;font-size:13px;padding:8px 10px;" +
+                "border-radius:6px;border:1px solid rgba(57,255,20,0.3);background:#0d2b14;" +
+                "color:#39ff14;cursor:pointer;font-weight:600;";
+              STATUSES.forEach(function (s) {
+                var opt = document.createElement("option");
+                opt.value = s[0];
+                opt.textContent = s[1];
+                select.appendChild(opt);
+              });
+              select.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+              select.addEventListener("mousedown", function (e) { e.stopPropagation(); });
+              select.addEventListener("click", function (e) { e.stopPropagation(); });
+              select.addEventListener("change", function () { updateStatus(lead.id, select.value); });
+              box.appendChild(select);
+              ov.appendChild(box);
+            }
+            var select2 = box.querySelector("select");
+            if (document.activeElement !== select2) select2.value = lead.crmStatus;
+            box.style.top = rect.bottom + window.scrollY + "px";
+            box.style.left = rect.left + window.scrollX + "px";
+            box.style.width = rect.width + "px";
+          });
+          Array.prototype.slice.call(ov.children).forEach(function (child) {
+            if (!seen[child.id]) child.remove();
+          });
+        }
+
+        fetchLeads().then(sync);
+        setInterval(function () {
+          fetchLeads().then(sync);
+        }, 1500);
+        window.addEventListener("scroll", sync, true);
+        window.addEventListener("resize", sync);
+      })();
+    </script>
+  </body>
+
+</html>
