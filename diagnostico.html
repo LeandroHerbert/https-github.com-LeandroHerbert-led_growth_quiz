@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>Qual motor está puxando o seu crescimento? | Diagnóstico gratuito</title>
+<meta name="description" content="Um diagnóstico rápido pra descobrir qual dos 4 principais motores de crescimento já está (ou deveria estar) puxando o seu negócio." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #060d06;
+    --bg-soft: #0b170b;
+    --line: rgba(57,255,20,0.14);
+    --line-soft: rgba(255,255,255,0.08);
+    --text: #f4fbf4;
+    --muted: #8fa392;
+    --neon: #39ff14;
+    --slg: #3b82f6;
+    --plg: #a855f7;
+    --mlg: #22c55e;
+    --flg: #f59e0b;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  #glow {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(600px circle at 50% 20%, rgba(57,255,20,0.07), transparent 70%);
+    transition: background 0.15s ease;
+  }
+
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 24px;
+    background: rgba(6,13,6,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .logo { font-weight: 900; letter-spacing: 1px; font-size: 15px; }
+  .logo span { color: var(--neon); }
+  .btn {
+    display: inline-block;
+    background: var(--neon);
+    color: #060d06;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 14px 30px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -8px rgba(57,255,20,0.5); }
+  .btn-nav { padding: 10px 20px; font-size: 12px; }
+  .btn-big { padding: 20px 46px; font-size: 15px; }
+
+  section { position: relative; z-index: 1; }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--neon); margin-bottom: 22px;
+  }
+  .eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--neon); box-shadow: 0 0 10px var(--neon); }
+
+  .hero { padding: 100px 0 90px; text-align: center; }
+  .hero h1 {
+    font-size: clamp(30px, 5vw, 52px);
+    font-weight: 900; line-height: 1.14; letter-spacing: -0.02em; margin: 0 0 24px;
+    max-width: 780px; margin-left: auto; margin-right: auto;
+  }
+  .hero h1 em { color: var(--neon); font-style: normal; }
+  .hero p.sub {
+    font-size: clamp(16px, 2vw, 19px); color: var(--muted); line-height: 1.65;
+    max-width: 600px; margin: 0 auto 40px;
+  }
+  .hero .trust {
+    margin-top: 18px; font-size: 12.5px; color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+
+  .section-pad { padding: 90px 0; border-top: 1px solid var(--line-soft); }
+  h2 {
+    font-size: clamp(24px, 3.4vw, 36px); font-weight: 900; letter-spacing: -0.01em;
+    line-height: 1.2; margin: 0 0 20px; max-width: 700px;
+  }
+  .lead { font-size: 16.5px; color: var(--muted); line-height: 1.7; max-width: 600px; margin: 0 0 48px; }
+
+  .problems { display: grid; gap: 28px; grid-template-columns: repeat(2, 1fr); }
+  .problem {
+    border-left: 2px solid rgba(57,255,20,0.35);
+    padding-left: 22px;
+  }
+  .problem p.tag { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--neon); margin: 0 0 8px; }
+  .problem p.txt { font-size: 15.5px; color: #d7e6d9; line-height: 1.65; margin: 0; }
+
+  .models { display: grid; gap: 18px; grid-template-columns: repeat(2, 1fr); margin-top: 10px; }
+  .model {
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    padding: 26px;
+    position: relative;
+    overflow: hidden;
+  }
+  .model::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent);
+  }
+  .model .code {
+    display: inline-block; font-size: 12px; font-weight: 900; letter-spacing: 1px;
+    color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent);
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+  }
+  .model h3 { font-size: 18px; font-weight: 800; margin: 0 0 10px; }
+  .model p { font-size: 14px; color: var(--muted); line-height: 1.65; margin: 0; }
+  .models-note {
+    margin-top: 28px; font-size: 14.5px; color: var(--muted);
+    border-left: 2px solid var(--line); padding-left: 18px;
+  }
+
+  .steps { display: grid; gap: 0; margin-top: 10px; }
+  .step { display: flex; gap: 26px; padding: 30px 0; border-bottom: 1px solid var(--line-soft); }
+  .step:last-child { border-bottom: none; }
+  .step .num {
+    flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid var(--line); color: var(--neon);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px;
+  }
+  .step h3 { margin: 4px 0 8px; font-size: 17px; font-weight: 800; }
+  .step p { margin: 0; font-size: 14.5px; color: var(--muted); line-height: 1.65; max-width: 480px; }
+
+  .cta-final { text-align: center; padding: 100px 0 120px; }
+  .cta-final h2 { margin-left: auto; margin-right: auto; max-width: 620px; }
+  .cta-final .lead { margin-left: auto; margin-right: auto; }
+
+  footer {
+    border-top: 1px solid var(--line-soft);
+    padding: 28px 24px; text-align: center; font-size: 12px; color: var(--muted);
+  }
+
+  @media (max-width: 760px) {
+    .problems, .models { grid-template-columns: 1fr; }
+    .hero { padding: 64px 0 60px; }
+    .section-pad { padding: 64px 0; }
+  }
+</style>
+</head>
+<body>
+<div id="glow"></div>
+
+<nav>
+  <div class="logo">LED GROWTH <span>MODELS</span></div>
+  <a class="btn btn-nav" href="/">Fazer diagnóstico</a>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow reveal visible">Diagnóstico gratuito · resultado na hora</div>
+    <h1 class="reveal visible">Nos últimos meses você deve ter contratado mais gente pro comercial, trocado de agência, talvez virado a cara da empresa no Instagram. <em>E ainda assim não sabe dizer, com segurança, o que puxa o crescimento aqui.</em></h1>
+    <p class="sub reveal visible">Esse diagnóstico olha pra 4 motores de crescimento, os mais comuns em negócios como o seu, e mostra qual deles já está (ou deveria estar) puxando o seu hoje.</p>
+    <a class="btn btn-big reveal visible" href="/">Quero descobrir meu motor</a>
+    <div class="trust reveal visible">Grátis. Leva menos de 5 minutos. Resultado assim que você termina.</div>
+  </div>
+</section>
+
+<section class="section-pad">
+  <div class="wrap">
+    <h2 class="reveal">Tem empresa gastando rios de dinheiro em anúncio quando o que faria diferença era o fundador pegando o telefone. Tem outra com um time comercial enorme vendendo um produto que devia estar se vendendo sozinho.</h2>
+    <p class="lead reveal">Cada motor pede uma estrutura diferente: time, processo, até o tipo de gente que você contrata. Sem saber qual é o seu, é fácil gastar energia e caixa tentando fazer os quatro funcionarem ao mesmo tempo.</p>
+    <div class="problems">
+      <div class="problem reveal">
+        <p class="tag">Comercial no trabalho errado</p>
+        <p class="txt">Vendedor gastando trinta minutos de ligação pra convencer alguém de algo que devia estar óbvio no site, ou que devia chegar quente depois de uma boa campanha.</p>
+      </div>
+      <div class="problem reveal">
+        <p class="tag">Tráfego pago sem freio</p>
+        <p class="txt">Três meses de anúncio rodando sem parar, enquanto o negócio sempre vendeu mesmo foi por indicação e por gente que confia na sua cara.</p>
+      </div>
+      <div class="problem reveal">
+        <p class="tag">Fundador vendendo um a um</p>
+        <p class="txt">Toda proposta importante ainda passa pela sua mão, e ninguém decidiu se isso é uma fase que vai passar ou se é justamente aí que está a força do negócio.</p>
+      </div>
+      <div class="problem reveal">
+        <p class="tag">Copiando a estratégia errada</p>
+        <p class="txt">Aquele conteúdo que funcionou pra outra empresa não funciona pra você, porque a empresa dela cresce de um jeito completamente diferente do seu.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-pad">
+  <div class="wrap">
+    <h2 class="reveal">Esse diagnóstico mapeia 4 motores de crescimento, os mais frequentes em negócios como o seu.</h2>
+    <p class="lead reveal">Existem outras variações, mas boa parte das empresas se reconhece em algum destes quatro. Nenhum é melhor que o outro, cada um pede uma empresa organizada de um jeito diferente.</p>
+    <div class="models">
+      <div class="model reveal" style="--accent: var(--slg)">
+        <span class="code">SLG</span>
+        <h3>Sales-Led Growth</h3>
+        <p>O crescimento vem de gente conversando com gente: um comercial bem treinado que fecha venda no relacionamento e no argumento, não numa campanha bem segmentada.</p>
+      </div>
+      <div class="model reveal" style="--accent: var(--plg)">
+        <span class="code">PLG</span>
+        <h3>Product-Led Growth</h3>
+        <p>O produto vende sozinho. A pessoa experimenta, entende o valor sem ninguém explicando, e vira cliente antes mesmo de falar com alguém da empresa.</p>
+      </div>
+      <div class="model reveal" style="--accent: var(--mlg)">
+        <span class="code">MLG</span>
+        <h3>Marketing-Led Growth</h3>
+        <p>A demanda já chega pronta. Quando o comercial entra em cena, o cliente já confia na marca e só falta fechar os detalhes.</p>
+      </div>
+      <div class="model reveal" style="--accent: var(--flg)">
+        <span class="code">FLG</span>
+        <h3>Founder-Led Growth</h3>
+        <p>Quem abre a porta é o fundador. Rede de contatos, autoridade e presença pessoal fazem o trabalho que nenhuma campanha faria sozinha.</p>
+      </div>
+    </div>
+    <p class="models-note reveal">Vale notar: a resposta costuma não ser a mesma que a pessoa dá de cabeça antes de responder o diagnóstico.</p>
+  </div>
+</section>
+
+<section class="section-pad">
+  <div class="wrap">
+    <h2 class="reveal">Dá pra responder em poucos minutos, no meio do seu dia normal.</h2>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="num">1</div>
+        <div>
+          <h3>Você responde umas perguntas sobre como as coisas funcionam hoje</h3>
+          <p>Não tem pergunta capciosa nem cadastro antes de começar. É só contar, com sinceridade, como vendas, marketing e produto se comportam aí dentro.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="num">2</div>
+        <div>
+          <h3>O resultado aparece assim que você termina</h3>
+          <p>Nada de esperar por e-mail. Você vê na tela, na hora, qual dos motores está puxando o seu negócio agora.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="num">3</div>
+        <div>
+          <h3>Depois fica mais fácil decidir onde colocar energia</h3>
+          <p>Com o motor identificado, dá pra parar de investir tempo e orçamento em frentes que nunca foram o seu forte.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-final">
+  <div class="wrap">
+    <h2 class="reveal">Responda o diagnóstico e veja qual motor já está puxando o seu negócio.</h2>
+    <p class="lead reveal">Leva menos de 5 minutos e o resultado é seu assim que a última pergunta for respondida.</p>
+    <a class="btn btn-big reveal" href="/">Fazer meu diagnóstico agora</a>
+  </div>
+</section>
+
+<footer>
+  LED GROWTH MODELS · Diagnóstico gratuito de motor de crescimento
+</footer>
+
+<script>
+  document.addEventListener('mousemove', function (e) {
+    var glow = document.getElementById('glow');
+    glow.style.background = 'radial-gradient(600px circle at ' + e.clientX + 'px ' + e.clientY + 'px, rgba(57,255,20,0.07), transparent 70%)';
+  });
+
+  var revealEls = document.querySelectorAll('.reveal:not(.visible)');
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(function (el) { io.observe(el); });
+</script>
+</body>
+</html>

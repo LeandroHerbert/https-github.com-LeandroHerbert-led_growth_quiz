@@ -28,6 +28,12 @@ app.use(
 
 app.use("/assets", express.static(path.join(CLIENT_DIR, "assets")));
 
+// Página de captação nova (copywriting/layout próprios), reescrita do zero.
+// O quiz de verdade (perguntas, pontuação, captação de lead) continua em "/".
+app.get("/diagnostico", (req, res) => {
+  res.sendFile(path.join(CLIENT_DIR, "diagnostico.html"));
+});
+
 app.get("*", (req, res) => {
   res.sendFile(path.join(CLIENT_DIR, "index.html"));
 });
