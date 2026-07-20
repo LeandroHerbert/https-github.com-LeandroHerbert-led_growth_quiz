@@ -24,6 +24,12 @@
       [data-loc="client/src/pages/ResultDetails.tsx:563"] {
         display: none !important;
       }
+
+      /* Abre espaço para o destaque do "presente surpresa" (inserido via script,
+         por fora da árvore do React) não sobrepor o botão de WhatsApp abaixo. */
+      [data-loc="client/src/pages/ResultDetails.tsx:521"] {
+        margin-bottom: 76px !important;
+      }
     </style>
   </head>
 
@@ -143,6 +149,58 @@
         setInterval(function () {
           fetchLeads().then(sync);
         }, 1500);
+        window.addEventListener("scroll", sync, true);
+        window.addEventListener("resize", sync);
+      })();
+    </script>
+    <script>
+      // Destaque do "presente surpresa" na tela de resultado (ResultDetails.tsx),
+      // inserido por fora da árvore do React (mesma técnica do seletor de status do CRM)
+      // para não arriscar mexer no bundle compilado.
+      (function () {
+        var BANNER_ID = "presente-surpresa-banner";
+
+        function sync() {
+          var anchor = document.querySelector('[data-loc="client/src/pages/ResultDetails.tsx:521"]');
+          var banner = document.getElementById(BANNER_ID);
+          if (!anchor) {
+            if (banner) banner.remove();
+            return;
+          }
+          if (!banner) {
+            banner = document.createElement("div");
+            banner.id = BANNER_ID;
+            banner.style.cssText =
+              "position:absolute;pointer-events:none;box-sizing:border-box;" +
+              "display:flex;align-items:center;gap:10px;" +
+              "padding:12px 16px;border-radius:10px;" +
+              "background:rgba(57,255,20,0.08);border:1px solid rgba(57,255,20,0.3);";
+
+            var icon = document.createElement("div");
+            icon.style.cssText = "flex-shrink:0;color:#39ff14;display:flex;";
+            icon.innerHTML =
+              '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+              '<polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/>' +
+              '<line x1="12" y1="22" x2="12" y2="7"/>' +
+              '<path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>' +
+              '<path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>';
+
+            var text = document.createElement("p");
+            text.style.cssText = "margin:0;color:#fff;font-size:13px;font-weight:700;line-height:1.4;text-align:left;";
+            text.textContent = "Quem participar da reunião estratégica leva um presente surpresa.";
+
+            banner.appendChild(icon);
+            banner.appendChild(text);
+            document.body.appendChild(banner);
+          }
+          var rect = anchor.getBoundingClientRect();
+          banner.style.top = rect.bottom + window.scrollY + 14 + "px";
+          banner.style.left = rect.left + window.scrollX + "px";
+          banner.style.width = rect.width + "px";
+        }
+
+        sync();
+        setInterval(sync, 800);
         window.addEventListener("scroll", sync, true);
         window.addEventListener("resize", sync);
       })();
